@@ -1,1 +1,0 @@
-mask/test.png
