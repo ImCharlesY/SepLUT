@@ -1,239 +1,230 @@
-<div align="center">
-  <img src="docs/en/_static/image/mmediting-logo.png" width="500px"/>
-  <div>&nbsp;</div>
-  <div align="center">
-    <b><font size="5">OpenMMLab website</font></b>
-    <sup>
-      <a href="https://openmmlab.com">
-        <i><font size="4">HOT</font></i>
-      </a>
-    </sup>
-    &nbsp;&nbsp;&nbsp;&nbsp;
-    <b><font size="5">OpenMMLab platform</font></b>
-    <sup>
-      <a href="https://platform.openmmlab.com">
-        <i><font size="4">TRY IT OUT</font></i>
-      </a>
-    </sup>
-  </div>
-  <div>&nbsp;</div>
-
-[![PyPI](https://badge.fury.io/py/mmedit.svg)](https://pypi.org/project/mmedit/)
-[![docs](https://img.shields.io/badge/docs-latest-blue)](https://mmediting.readthedocs.io/en/latest/)
-[![badge](https://github.com/open-mmlab/mmediting/workflows/build/badge.svg)](https://github.com/open-mmlab/mmediting/actions)
-[![codecov](https://codecov.io/gh/open-mmlab/mmediting/branch/master/graph/badge.svg)](https://codecov.io/gh/open-mmlab/mmediting)
-[![license](https://img.shields.io/github/license/open-mmlab/mmediting.svg)](https://github.com/open-mmlab/mmediting/blob/master/LICENSE)
-[![open issues](https://isitmaintained.com/badge/open/open-mmlab/mmediting.svg)](https://github.com/open-mmlab/mmediting/issues)
-[![issue resolution](https://isitmaintained.com/badge/resolution/open-mmlab/mmediting.svg)](https://github.com/open-mmlab/mmediting/issues)
-
-[📘Documentation](https://mmediting.readthedocs.io/en/latest/) |
-[🛠️Installation](https://mmediting.readthedocs.io/en/latest/install.html) |
-[👀Model Zoo](https://mmediting.readthedocs.io/en/latest/_tmp/modelzoo.html) |
-[🆕Update News](https://github.com/open-mmlab/mmediting/blob/master/docs/en/changelog.md) |
-[🚀Ongoing Projects](https://github.com/open-mmlab/mmediting/projects) |
-[🤔Reporting Issues](https://github.com/open-mmlab/mmediting/issues)
-
-</div>
-
-English | [简体中文](/README_zh-CN.md)
+# SepLUT: Separable Image-adaptive Lookup Tables for Real-time Image Enhancement
 
 ## Introduction
 
-MMEditing is an open-source image and video editing toolbox based on PyTorch. It is a part of the [OpenMMLab](https://openmmlab.com/) project.
+The codebase provides the official PyTorch implementation and some model checkpoints for the paper ["SepLUT: Separable Image-adaptive Lookup Tables for Real-time Image Enhancement"](https://arxiv.org/abs/TODO).
 
-Currently, MMEditing support the following tasks:
+<p align="center">
+  <img src="resources/framework.jpg" />
+</p>
 
-<div align="center">
-  <img src="https://user-images.githubusercontent.com/12756472/158984079-c4754015-c1f6-48c5-ac46-62e79448c372.jpg"/>
-</div>
+The codebase is based on the popular MMEditing toolbox ([v0.11.0](https://github.com/open-mmlab/mmediting/tree/v0.11.0)). Please refer to [ori_README.md](https://github.com/open-mmlab/mmediting/blob/v0.11.0/README.md) for the original README.
 
-The master branch works with **PyTorch 1.5+**.
+## Code Structure
 
-Some Demos:
+- `mmedit/`: the original MMEditing toolbox (without any modification).
+- `seplut/`: the core implementation of the paper, including:
+  - `annfiles/`: including the annotation files for FiveK and PPR10K datasets.
+  - `dataset.py`: the dataset class for image enhancement (FiveK and PPR10K).
+  - `transforms.py`: including some augmentations not provided by MMEditing toolbox.
+  - `seplut_transform/`: including the python interfaces, the C++ CPU/CUDA implementation, and the wheel package of the cascade 1D and 3D LUT transform.
+  - `modules/`: the implementation of the sub-modules in SepLUT, including backbone, LUT generators.
+  - `model.py`: the implementation of SepLUT model.
+  - `configs/`: including configurations to conduct experiments.
+  - `metrics/`: including MATLAB scripts to calculate metrics reported in the paper.
+  - `demo.py`: a python script to run a demo.
+- `pretrained/`: including the pretrained models.
 
-https://user-images.githubusercontent.com/12756472/158972852-be5849aa-846b-41a8-8687-da5dee968ac7.mp4
+## Prerequisites
 
-https://user-images.githubusercontent.com/12756472/158972813-d8d0f19c-f49c-4618-9967-52652726ef19.mp4
+### Hardware
 
-### Major features
+- CPU: Intel(R) Xeon(R) Platinum 8163 CPU @ 2.50GHz
+- GPU: NVIDIA Tesla V100 SXM2 32G
 
-- **Modular design**
+### Dependencies
 
-  We decompose the editing framework into different components and one can easily construct a customized editor framework by combining different modules.
+- Ubuntu 18.04.5 LTS
+- Python 3.7.10
+- PyTorch 1.8.1
+- **GCC/G++ 7.5**
+- **CUDA 10.2**
+- **MMCV 1.6.0**
+- **MMEditing 0.15.0**
 
-- **Support of multiple tasks in editing**
+### Installation
 
-  The toolbox directly supports popular and contemporary *inpainting*, *matting*, *super-resolution* and *generation* tasks.
-
-- **State of the art**
-
-  The toolbox provides state-of-the-art methods in inpainting/matting/super-resolution/generation.
-
-Note that **MMSR** has been merged into this repo, as a part of MMEditing.
-With elaborate designs of the new framework and careful implementations,
-hope MMEditing could provide better experience.
-
-## News
-
-- \[2022-06-01\] v0.15.0 was released.
-  - Support FLAVR
-  - Support AOT-GAN
-  - Support CAIN with ReduceLROnPlateau Scheduler
-- \[2022-04-01\] v0.14.0 was released.
-  - Support TOFlow in video frame interpolation
-- \[2022-03-01\] v0.13.0 was released.
-  - Support CAIN
-  - Support EDVR-L
-  - Support running in Windows
-- \[2022-02-11\] Switch to **PyTorch 1.5+**. The compatibility to earlier versions of PyTorch will no longer be guaranteed.
-
-Please refer to [changelog.md](docs/en/changelog.md) for details and release history.
-
-## Installation
-
-MMEditing depends on [PyTorch](https://pytorch.org/) and [MMCV](https://github.com/open-mmlab/mmcv).
-Below are quick steps for installation.
-
-**Step 1.**
-Install PyTorch following [official instructions](https://pytorch.org/get-started/locally/).
-
-**Step 2.**
-Install MMCV with [MIM](https://github.com/open-mmlab/mim).
+You can set up the MMEditing toolbox with conda and pip as follows:
 
 ```shell
-pip3 install openmim
-mim install mmcv-full
+conda install -c pytorch pytorch=1.8.1 torchvision=0.9.1 cudatoolkit=10.2 -y
+pip install -r requirements.txt
+pip install -v -e .
 ```
 
-**Step 3.**
-Install MMEditing from source.
+We provide a PyTorch extension (including both CPU and CUDA implementations) to speed up the cascade transformation of 1D and 3D LUTs. You can install the extension in either the following two ways:
+
+- Compile and install the extension manually.
 
 ```shell
-git clone https://github.com/open-mmlab/mmediting.git
-cd mmediting
-pip3 install -e .
+python seplut/seplut_transform/setup.py install
 ```
 
-Please refer to [install.md](docs/en/install.md) for more detailed instruction.
+- Use the pre-compiled python wheel package.
 
-## Getting Started
+```shell
+pip install seplut/seplut_transform/seplut_ext-1.2.0-cp37-cp37m-linux_x86_64.whl
+```
 
-Please see [getting_started.md](docs/en/getting_started.md) and [demo.md](docs/en/demo.md) for the basic usage of MMEditing.
+Note that the extension should be compiled and packaged using Python 3.7.10, PyTorch 1.8.1, GCC/G++ 7.5, and CUDA 10.2. If you fail to install the extension or encounter any issue afterward, please first carefully check your environment accordingly.
 
-## Model Zoo
+In case you would like to remove the installed extension, please execute the following command:
 
-Supported algorithms:
+```shell
+pip uninstall seplut_ext
+```
 
-<details open>
-<summary>Inpainting</summary>
+## Demo
 
-- [x] [Global&Local](configs/inpainting/global_local/README.md) (ToG'2017)
-- [x] [DeepFillv1](configs/inpainting/deepfillv1/README.md) (CVPR'2018)
-- [x] [PConv](configs/inpainting/partial_conv/README.md) (ECCV'2018)
-- [x] [DeepFillv2](configs/inpainting/deepfillv2/README.md) (CVPR'2019)
-- [x] [AOT-GAN](configs/inpainting/AOT-GAN/README.md) (TVCG'2021)
+We provide a quick demo script in `seplut/demo.py`. You can execute it in the following way:
+```shell
+python seplut/demo.py [CONFIG_FILE] [MODEL_CHECKPOINT] [INPUT_IMAGE_PATH] [OUTPUT_IMAGE_PATH] --cfg-options model.attr1=val1 model.attr2=val2 ...
+```
 
-</details>
+For quick testing, we provide a pretrained model in `./pretrained/SepLUT-FiveK-sRGB-M8#3D17#1D17.pth` and an input image from the FiveK dataset in 8-bit sRGB format (`./resources/a4739.jpg`). You can conduct enhancement on it using the below command:
+```shell
+python seplut/demo.py seplut/configs/fivekrgb.py pretrained/SepLUT-FiveK-sRGB-M8#3D17#1D17.pth resources/a4739.jpg resources/a4739_enhanced.png
+```
+The enhanced result can be found in `resources/a4739_enhanced.png`.
 
-<details open>
-<summary>Matting</summary>
+## Datasets
 
-- [x] [DIM](configs/mattors/dim/README.md) (CVPR'2017)
-- [x] [IndexNet](configs/mattors/indexnet/README.md) (ICCV'2019)
-- [x] [GCA](configs/mattors/gca/README.md) (AAAI'2020)
+The paper use the [FiveK](https://data.csail.mit.edu/graphics/fivek/) and [PPR10K](https://github.com/csjliang/PPR10K) datasets for experiments. It is recommended to refer to the dataset creators first using the above two urls.
 
-</details>
+### Download
 
-<details open>
-<summary>Image-Super-Resolution</summary>
+- FiveK
 
-- [x] [SRCNN](configs/restorers/srcnn/README.md) (TPAMI'2015)
-- [x] [SRResNet&SRGAN](configs/restorers/srresnet_srgan/README.md) (CVPR'2016)
-- [x] [EDSR](configs/restorers/edsr/README.md) (CVPR'2017)
-- [x] [ESRGAN](configs/restorers/esrgan/README.md) (ECCV'2018)
-- [x] [RDN](configs/restorers/rdn/README.md) (CVPR'2018)
-- [x] [DIC](configs/restorers/dic/README.md) (CVPR'2020)
-- [x] [TTSR](configs/restorers/ttsr/README.md) (CVPR'2020)
-- [x] [GLEAN](configs/restorers/glean/README.md) (CVPR'2021)
-- [x] [LIIF](configs/restorers/liif/README.md) (CVPR'2021)
+You can download the original FiveK dataset from the dataset [homepage](https://data.csail.mit.edu/graphics/fivek/) and then preprocess the dataset using Adobe Lightroom following the instructions in [Prepare_FiveK.md](Prepare_FiveK.md).
 
-</details>
+For fast setting up, you can also download only the 480p dataset preprocessed by Zeng ([[GoogleDrive](https://drive.google.com/drive/folders/1Y1Rv3uGiJkP6CIrNTSKxPn1p-WFAc48a?usp=sharing)],[[onedrive](https://connectpolyu-my.sharepoint.com/:f:/g/personal/16901447r_connect_polyu_hk/EqNGuQUKZe9Cv3fPG08OmGEBbHMUXey2aU03E21dFZwJyg?e=QNCMMZ)],[[baiduyun](https://pan.baidu.com/s/1CsQRFsEPZCSjkT3Z1X_B1w):5fyk]), including 8-bit sRGB, 16-bit XYZ input images and 8-bit sRGB groundtruth images.
 
-<details open>
-<summary>Video-Super-Resolution</summary>
+After downloading the dataset, please unzip the images into the `./data/FiveK` directory. Please also place the annotation files in `./seplut/annfiles/FiveK` to the same directory. The final directory structure is as follows.
 
-- [x] [EDVR](configs/restorers/edvr/README.md) (CVPR'2019)
-- [x] [TOF](configs/restorers/tof/README.md) (IJCV'2019)
-- [x] [TDAN](configs/restorers/tdan/README.md) (CVPR'2020)
-- [x] [BasicVSR](configs/restorers/basicvsr/README.md) (CVPR'2021)
-- [x] [IconVSR](configs/restorers/iconvsr/README.md) (CVPR'2021)
-- [x] [BasicVSR++](configs/restorers/basicvsr_plusplus/README.md) (CVPR'2022)
-- [x] [RealBasicVSR](configs/restorers/real_basicvsr/README.md) (CVPR'2022)
+```
+./data/FiveK
+    input/
+        JPG/480p/                # 8-bit sRGB inputs
+        PNG/480p_16bits_XYZ_WB/  # 16-bit XYZ inputs
+    expertC/JPG/480p/            # 8-bit sRGB groundtruths
+    train.txt
+    test.txt
+```
 
-</details>
+- PPR10K
 
-<details open>
-<summary>Generation</summary>
+We download the 360p dataset (`train_val_images_tif_360p` and `masks_360p`) from [PPR10K](https://github.com/csjliang/PPR10K) to conduct our experiments.
 
-- [x] [CycleGAN](configs/synthesizers/cyclegan/README.md) (ICCV'2017)
-- [x] [pix2pix](configs/synthesizers/pix2pix/README.md) (CVPR'2017)
+After downloading the dataset, please unzip the images into the `./data/PPR10K` directory. Please also place the annotation files in `./seplut/annfiles/PPR10K` to the same directory. The expected directory structure is as follows.
 
-</details>
+```
+data/PPR10K
+    source/       # 16-bit sRGB inputs
+    source_aug_6/ # 16-bit sRGB inputs with 5 versions of augmented
+    masks/        # human-region masks
+    target_a/     # 8-bit sRGB groundtruths retouched by expert a
+    target_b/     # 8-bit sRGB groundtruths retouched by expert b
+    target_c/     # 8-bit sRGB groundtruths retouched by expert c
+    train.txt
+    train_aug.txt
+    test.txt
+```
 
-<details open>
-<summary>Video Interpolation</summary>
+## Usage
 
-- [x] [TOFlow](configs/video_interpolators/tof/README.md) (IJCV'2019)
-- [x] [CAIN](configs/video_interpolators/cain/README.md) (AAAI'2020)
-- [x] [FLAVR](configs/video_interpolators/flavr/README.md) (CVPR'2021)
+### General Instruction
 
-</details>
+- You can configure experiments by modifying the configuration files in `seplut/configs/`. Here we briefly describe some critical hyper-parameters:
+  - `model.n_vertices_3d`: (int) The size of the 3D LUT (denoted as `S_t` in the paper).
+  - `model.n_vertices_1d`: (int) The size of the 1D LUTs (denoted as `S_o` in the paper).
+  - `model.n_base_feats`: (int) The channel multiplier in the backbone (denoted as `m` in the paper).
 
-Please refer to [model_zoo](https://mmediting.readthedocs.io/en/latest/_tmp/modelzoo.html) for more details.
+- Execute commands in the following format to train a model (all experiments can be conducted on a single GPU).
+```shell
+python tools/train.py [PATH/TO/CONFIG] --cfg-options model.attr1=val1 model.attr2=val2 ...
+```
 
-## Contributing
+- Execute commands in the following format to run the inference given a pretrained model.
+```shell
+python tools/test.py [PATH/TO/CONFIG] [PATH/TO/MODEL/CHECKPOINT] --save-path [PATH/TO/SAVE/RESULTS] \
+  --cfg-options model.attr1=val1 model.attr2=val2 ...
+```
 
-We appreciate all contributions to improve MMEditing. Please refer to our [contributing guidelines](https://github.com/open-mmlab/mmediting/wiki/A.-Contribution-Guidelines).
+- Use MATLAB to calculate the metrics reported in the paper.
+```shell
+cd ./adaint/metrics
+(matlab) >> fivek_calculate_metrics([PATH/TO/SAVE/RESULTS], [PATH/TO/GT/IMAGES])
+```
 
-## Acknowledgement
+### Training
 
-MMEditing is an open source project that is contributed by researchers and engineers from various colleges and companies. We appreciate all the contributors who implement their methods or add new features, as well as users who give valuable feedbacks. We wish that the toolbox and benchmark could serve the growing research community by providing a flexible toolkit to reimplement existing methods and develop their own new methods.
+- On FiveK-sRGB (for photo retouching)
+```shell
+# Ours-L (m=8, So=St=17)
+python tools/train.py seplut/configs/fivekrgb.py --cfg-options model.n_base_feats=8 model.n_vertices_3d=17 model.n_vertices_1d=17
+# Ours-S (m=6, So=St=9)
+python tools/train.py seplut/configs/fivekrgb.py --cfg-options model.n_base_feats=6 model.n_vertices_3d=9 model.n_vertices_1d=9
+```
+
+- On FiveK-XYZ (for tone mapping)
+```shell
+# Ours-L (m=8, So=St=17)
+python tools/train.py seplut/configs/fivekxyz.py --cfg-options model.n_base_feats=8 model.n_vertices_3d=17 model.n_vertices_1d=17
+# Ours-S (m=6, So=St=9)
+python tools/train.py seplut/configs/fivekxyz.py --cfg-options model.n_base_feats=6 model.n_vertices_3d=9 model.n_vertices_1d=9
+```
+
+- On PPR10K (for photo retouching)
+```shell
+# Ours-L (res18, So=St=17)
+python tools/train.py seplut/configs/ppr10k.py --cfg-options model.n_vertices_3d=17 model.n_vertices_1d=17
+# Ours-S (res18, So=St=9)
+python tools/train.py seplut/configs/ppr10k.py --cfg-options model.n_vertices_3d=9 model.n_vertices_1d=9
+```
+
+### Testing
+
+We provide some pretrained models in `./pretrained/`. To conduct testing, please use the following commands:
+
+- On FiveK-sRGB (for photo retouching)
+```shell
+# Ours-L (m=8, So=St=17)
+python tools/test.py seplut/configs/fivekrgb.py pretrained/SepLUT-FiveK-sRGB-M8#3D17#1D17.pth --cfg-options model.n_base_feats=8 model.n_vertices_3d=17 model.n_vertices_1d=17 --save-path [PATH/TO/SAVE/RESULTS]
+# Ours-S (m=6, So=St=9)
+python tools/test.py seplut/configs/fivekrgb.py pretrained/SepLUT-FiveK-sRGB-M6#3D9#1D9.pth --cfg-options model.n_base_feats=6 model.n_vertices_3d=9 model.n_vertices_1d=9 --save-path [PATH/TO/SAVE/RESULTS]
+```
+
+- On FiveK-XYZ (for tone mapping)
+```shell
+# Ours-L (m=8, So=St=17)
+python tools/test.py seplut/configs/fivekxyz.py pretrained/SepLUT-FiveK-XYZ-M8#3D17#1D17.pth --cfg-options model.n_base_feats=8 model.n_vertices_3d=17 model.n_vertices_1d=17 --save-path [PATH/TO/SAVE/RESULTS]
+# Ours-S (m=6, So=St=9)
+python tools/test.py seplut/configs/fivekxyz.py pretrained/SepLUT-FiveK-XYZ-M6#3D9#1D9.pth --cfg-options model.n_base_feats=6 model.n_vertices_3d=9 model.n_vertices_1d=9 --save-path [PATH/TO/SAVE/RESULTS]
+```
+
+- On PPR10K (for photo retouching)
+```shell
+python tools/test.py seplut/configs/ppr10k.py pretrained/SepLUT-PPR10KA-sRGB.pth --save-path [PATH/TO/SAVE/RESULTS]
+# Ours-L (res18, So=St=17)
+python tools/test.py seplut/configs/ppr10k.py pretrained/SepLUT-PPR10KA-sRGB-Res18#3D17#1D17.pth --cfg-options model.n_vertices_3d=17 model.n_vertices_1d=17 --save-path [PATH/TO/SAVE/RESULTS]
+# Ours-S (res18, So=St=9)
+python tools/test.py seplut/configs/ppr10k.py pretrained/SepLUT-PPR10KA-sRGB-Res18#3D9#1D9.pth --cfg-options model.n_vertices_3d=9 model.n_vertices_1d=9 --save-path [PATH/TO/SAVE/RESULTS]
+```
+## License
+
+This codebase is released under the [Apache 2.0 license](LICENSE).
 
 ## Citation
 
-If MMEditing is helpful to your research, please cite it as below.
-
-```bibtex
-@misc{mmediting2022,
-    title = {{MMEditing}: {OpenMMLab} Image and Video Editing Toolbox},
-    author = {{MMEditing Contributors}},
-    howpublished = {\url{https://github.com/open-mmlab/mmediting}},
-    year = {2022}
-}
+If you find this repository useful, please kindly consider citing the following paper:
+```
+TODO
 ```
 
-## License
+## Acknowledgements
 
-This project is released under the [Apache 2.0 license](LICENSE).
+This codebase is based on the following open-source projects. We thank their authors for making the source code publically available.
 
-## Projects in OpenMMLab
-
-- [MMCV](https://github.com/open-mmlab/mmcv): OpenMMLab foundational library for computer vision.
-- [MIM](https://github.com/open-mmlab/mim): MIM installs OpenMMLab packages.
-- [MMClassification](https://github.com/open-mmlab/mmclassification): OpenMMLab image classification toolbox and benchmark.
-- [MMDetection](https://github.com/open-mmlab/mmdetection): OpenMMLab detection toolbox and benchmark.
-- [MMDetection3D](https://github.com/open-mmlab/mmdetection3d): OpenMMLab's next-generation platform for general 3D object detection.
-- [MMRotate](https://github.com/open-mmlab/mmrotate): OpenMMLab rotated object detection toolbox and benchmark.
-- [MMSegmentation](https://github.com/open-mmlab/mmsegmentation): OpenMMLab semantic segmentation toolbox and benchmark.
-- [MMOCR](https://github.com/open-mmlab/mmocr): OpenMMLab text detection, recognition, and understanding toolbox.
-- [MMPose](https://github.com/open-mmlab/mmpose): OpenMMLab pose estimation toolbox and benchmark.
-- [MMHuman3D](https://github.com/open-mmlab/mmhuman3d): OpenMMLab 3D human parametric model toolbox and benchmark.
-- [MMSelfSup](https://github.com/open-mmlab/mmselfsup): OpenMMLab self-supervised learning toolbox and benchmark.
-- [MMRazor](https://github.com/open-mmlab/mmrazor): OpenMMLab model compression toolbox and benchmark.
-- [MMFewShot](https://github.com/open-mmlab/mmfewshot): OpenMMLab fewshot learning toolbox and benchmark.
-- [MMAction2](https://github.com/open-mmlab/mmaction2): OpenMMLab's next-generation action understanding toolbox and benchmark.
-- [MMTracking](https://github.com/open-mmlab/mmtracking): OpenMMLab video perception toolbox and benchmark.
-- [MMFlow](https://github.com/open-mmlab/mmflow): OpenMMLab optical flow toolbox and benchmark.
-- [MMEditing](https://github.com/open-mmlab/mmediting): OpenMMLab image and video editing toolbox.
-- [MMGeneration](https://github.com/open-mmlab/mmgeneration): OpenMMLab image and video generative models toolbox.
-- [MMDeploy](https://github.com/open-mmlab/mmdeploy): OpenMMLab model deployment framework.
+- [MMEditing](https://github.com/open-mmlab/mmediting)
+- [TPAMI 3D-LUT](https://github.com/HuiZeng/Image-Adaptive-3DLUT)
+- [PPR10K](https://github.com/csjliang/PPR10K)
