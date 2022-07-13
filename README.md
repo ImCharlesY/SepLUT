@@ -2,11 +2,13 @@
 
 ## Introduction
 
-The codebase provides the official PyTorch implementation and some model checkpoints for the paper ["SepLUT: Separable Image-adaptive Lookup Tables for Real-time Image Enhancement"](https://arxiv.org/abs/TODO).
+The codebase provides the official PyTorch implementation and some model checkpoints for the paper ["SepLUT: Separable Image-adaptive Lookup Tables for Real-time Image Enhancement"](https://arxiv.org/abs/TODO) (accepted by ECCV 2022).
 
 <p align="center">
   <img src="resources/framework.jpg" />
 </p>
+
+In this project, we present a novel, general framework called SepLUT that simultaneously takes advantage of two different types of LUTs, both 1D and 3D, for realtime image enhancement. It separates a single color transform into component-independent and component-correlated sub-transforms in a cascade manner. Extensive experiments demonstrate that such a scheme helps sufficiently exert the capabilities of both types of LUTs and provides the proposed method with several promising properties, including enhanced expressiveness, high efficiency, and light memory/storage footprints.
 
 The codebase is based on the popular MMEditing toolbox ([v0.11.0](https://github.com/open-mmlab/mmediting/tree/v0.11.0)). Please refer to [ori_README.md](https://github.com/open-mmlab/mmediting/blob/v0.11.0/README.md) for the original README.
 
@@ -152,7 +154,7 @@ python tools/test.py [PATH/TO/CONFIG] [PATH/TO/MODEL/CHECKPOINT] --save-path [PA
 
 - Use MATLAB to calculate the metrics reported in the paper.
 ```shell
-cd ./adaint/metrics
+cd ./seplut/metrics
 (matlab) >> fivek_calculate_metrics([PATH/TO/SAVE/RESULTS], [PATH/TO/GT/IMAGES])
 ```
 
@@ -218,7 +220,12 @@ This codebase is released under the [Apache 2.0 license](LICENSE).
 
 If you find this repository useful, please kindly consider citing the following paper:
 ```
-TODO
+@InProceedings{yang2022seplut,
+  title={SepLUT: Separable Image-adaptive Lookup Tables for Real-time Image Enhancement},
+  author={Yang, Canqian and Jin, Meiguang and Xu, Yi and Zhang, Rui and Chen, Ying and Liu, Huaida},
+  booktitle={European Conference on Computer Vision (ECCV)},
+  year={2022}
+}
 ```
 
 ## Acknowledgements
