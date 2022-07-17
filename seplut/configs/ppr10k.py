@@ -21,7 +21,7 @@ model = dict(
     recons_loss=dict(type='MSELoss', loss_weight=1.0, reduction='mean'))
 # model training and testing settings
 train_cfg = None
-test_cfg = dict(metrics=['PSNR'], crop_border=0)
+test_cfg = dict(en_quant=False, metrics=['PSNR'], crop_border=0)
 
 # dataset settings
 train_dataset_type = 'PPR10K'

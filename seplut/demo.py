@@ -38,7 +38,9 @@ def enhancement_inference(model, img):
     # prepare data
     data = dict(lq_path=img)
     data = test_pipeline(data)
-    data = scatter(collate([data], samples_per_gpu=1), [device])[0]
+    data = collate([data], samples_per_gpu=1)
+    if 'cuda' in str(device):
+        data = scatter(data, [device])[0]
     # forward the model
     with torch.no_grad():
         result = model(test_mode=True, **data)
@@ -79,8 +81,12 @@ def main():
     if args.cfg_options is not None:
         cfg.merge_from_dict(args.cfg_options)
 
+    if args.device < 0:
+        device = torch.device('cpu')
+    else:
+        device = torch.device('cuda', args.device)
     model = init_model(
-        cfg, args.checkpoint, device=torch.device('cuda', args.device))
+        cfg, args.checkpoint, device=device)
 
     output = enhancement_inference(model, args.img_path)
     output = tensor2img(output)

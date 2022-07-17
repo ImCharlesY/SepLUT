@@ -80,7 +80,9 @@ pip uninstall seplut_ext
 
 We provide a quick demo script in `seplut/demo.py`. You can execute it in the following way:
 ```shell
-python seplut/demo.py [CONFIG_FILE] [MODEL_CHECKPOINT] [INPUT_IMAGE_PATH] [OUTPUT_IMAGE_PATH] --cfg-options model.attr1=val1 model.attr2=val2 ...
+python seplut/demo.py [CONFIG_FILE] [MODEL_CHECKPOINT] [INPUT_IMAGE_PATH] [OUTPUT_IMAGE_PATH] \
+  --cfg-options model.attr1=val1 model.attr2=val2 ... \
+  --cfg-options test_cfg.en_quant=True --device -1      # [Optional] Enable quantization mode
 ```
 
 For quick testing, we provide a pretrained model in `./pretrained/SepLUT-FiveK-sRGB-M8#3D17#1D17.pth` and an input image from the FiveK dataset in 8-bit sRGB format (`./resources/a4739.jpg`). You can conduct enhancement on it using the below command:
@@ -152,6 +154,16 @@ python tools/test.py [PATH/TO/CONFIG] [PATH/TO/MODEL/CHECKPOINT] --save-path [PA
   --cfg-options model.attr1=val1 model.attr2=val2 ...
 ```
 
+- Execute commands in the following format if you want to run inference on the quantized model.
+```shell
+CUDA_VISIBLE_DEVICES=-1 python tools/test.py [PATH/TO/CONFIG] [PATH/TO/MODEL/CHECKPOINT] \
+  --save-path [PATH/TO/SAVE/RESULTS] \
+  --cfg-options model.attr1=val1 model.attr2=val2 ... \
+  --cfg-options test_cfg.en_quant=True
+```
+
+Note that the quantized model is only supported on CPU. Therefore we need to enable the CPU inference mode for MMEditing by specifying `CUDA_VISIBLE_DEVICES=-1`.
+
 - Use MATLAB to calculate the metrics reported in the paper.
 ```shell
 cd ./seplut/metrics
@@ -206,7 +218,6 @@ python tools/test.py seplut/configs/fivekxyz.py pretrained/SepLUT-FiveK-XYZ-M6#3
 
 - On PPR10K (for photo retouching)
 ```shell
-python tools/test.py seplut/configs/ppr10k.py pretrained/SepLUT-PPR10KA-sRGB.pth --save-path [PATH/TO/SAVE/RESULTS]
 # Ours-L (res18, So=St=17)
 python tools/test.py seplut/configs/ppr10k.py pretrained/SepLUT-PPR10KA-sRGB-Res18#3D17#1D17.pth --cfg-options model.n_vertices_3d=17 model.n_vertices_1d=17 --save-path [PATH/TO/SAVE/RESULTS]
 # Ours-S (res18, So=St=9)

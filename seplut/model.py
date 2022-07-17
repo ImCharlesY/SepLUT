@@ -13,6 +13,7 @@ import torch.nn as nn
 
 import mmcv
 from mmcv.runner import auto_fp16
+from mmcv.utils import get_logger
 
 from mmedit.models.base import BaseModel
 from mmedit.models.registry import MODELS
@@ -59,6 +60,8 @@ class SepLUT(BaseModel):
     """
 
     allowed_metrics = {'PSNR': psnr, 'SSIM': ssim}
+    # quantization_mode: (n_vertices_1d, n_vertices_3d)
+    allowed_quantization_modes = {(9, 9), (17, 17)}
 
     def __init__(self,
         n_ranks=3,
@@ -115,6 +118,16 @@ class SepLUT(BaseModel):
 
         self.recons_loss = build_loss(recons_loss)
 
+        # variables for quantization
+        self.en_quant = test_cfg.get('en_quant', False) if test_cfg else False
+        self.quantization_mode = (self.n_vertices_1d, self.n_vertices_3d)
+        self._quantized = False
+        if self.en_quant and self.quantization_mode not in self.allowed_quantization_modes:
+            get_logger('seplut').warning('Current implementation does not support '
+                'quantization on mode 1D#{}-3D#{}. Quantization is disabled.'.format(
+                    *self.quantization_mode))
+            self.en_quant = False
+
     def init_weights(self):
         r"""Init weights for models.
 
@@ -132,6 +145,69 @@ class SepLUT(BaseModel):
             self.apply(special_initilization)
         if self.n_vertices_3d > 0:
             self.lut3d_generator.init_weights()
+
+    def quantize(self):
+        r'''Apply PyTorch's dynamic quantization technique to model parameters.
+        '''
+        if not self.en_quant or self._quantized: return
+        if 'cuda' in str(next(self.parameters()).device):
+            get_logger('seplut').warning('Current implementation does not support '
+                'quantization on GPU model. Quantization is disabled. Please run '
+                'the inference on CPU.')
+            self.en_quant = False
+            return
+        self.modules_backup = {
+            self.lut1d_generator, self.lut3d_generator}
+        self.lut1d_generator = torch.quantization.quantize_dynamic(
+            self.lut1d_generator, {nn.Linear}, dtype=torch.qint8)
+        self.lut3d_generator = torch.quantization.quantize_dynamic(
+            self.lut3d_generator, {nn.Linear}, dtype=torch.qint8)
+        self._quantized = True
+
+    def dequantize(self):
+        r'''Restore model parameters after model quantization.
+        '''
+        if not self._quantized: return
+        self.lut1d_generator, self.lut3d_generator = self.modules_backup
+        del self.modules_backup
+        self._quantized = False
+
+    def preprocess_quantized_transform(self, img, lut1d, lut3d):
+        r'''Quantize input image, 1D LUT and 3D LUT into 8-bit representation.
+
+        Args:
+            img (Tensor): Input image, shape (b, c, h, w).
+            lut1d (Tensor): 1D LUT, shape (b, c, n_vertices_1d).
+            lut3d (Tensor): 3D LUT, shape
+                (b, c, n_vertices_3d, n_vertices_3d, n_vertices_3d).
+        Returns:
+            tuple(Tensor, Tensor, Tensor, float, float):
+                Quantized input image, 1D LUT, 3D LUT,
+                minimum and maximum values of the 3D LUT.
+        '''
+        lmin, lmax = lut3d.min(), lut3d.max()
+        if self._quantized:
+            img = img.mul(255).round().to(torch.uint8)
+            lut1d = lut1d.mul(255).round().to(torch.uint8)
+            lut3d = lut3d.sub(lmin).div(lmax - lmin)
+            lut3d = lut3d.mul(255).round().to(torch.uint8)
+        return img, lut1d, lut3d, lmin, lmax
+
+    def postprocess_quantized_transform(self, out, lmin, lmax):
+        r'''Dequantize output image.
+
+        Args:
+            out (Tensor): Output image, shape (b, c, h, w).
+            lmin (float): minimum float value in the original 3D LUT.
+            lmax (float): maximum float value in the original 3D LUT.
+        Returns:
+            Tensor: Dequantized output image.
+        '''
+        if self._quantized:
+            out = out.float().div(255)
+            out = out.float().mul(lmax - lmin).add(lmin).clamp(0, 1)
+            out = out.mul(255).round().div(255)
+        return out
 
     def forward_dummy(self, imgs):
         r"""The real implementation of model forward.
@@ -185,6 +261,8 @@ class SepLUT(BaseModel):
         Returns:
             Tensor: Output image.
         """
+        self.quantize()
+
         # context vector: (b, f)
         codes = self.backbone(imgs)
 
@@ -207,7 +285,13 @@ class SepLUT(BaseModel):
             lut3d = lut3d.unsqueeze(0).repeat(
                 imgs.shape[0], 1, *([1] * self.n_colors))
 
+        imgs, lut1d, lut3d, lmin, lmax = \
+            self.preprocess_quantized_transform(imgs, lut1d, lut3d)
         out = seplut_transform(imgs, lut3d, lut1d)
+        out = self.postprocess_quantized_transform(out, lmin, lmax)
+
+        self.dequantize()
+
         return out
 
     @auto_fp16(apply_to=('lq', ))
