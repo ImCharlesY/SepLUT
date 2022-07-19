@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The codebase provides the official PyTorch implementation and some model checkpoints for the paper ["SepLUT: Separable Image-adaptive Lookup Tables for Real-time Image Enhancement"](https://arxiv.org/abs/TODO) (accepted by ECCV 2022).
+The codebase provides the official PyTorch implementation and some model checkpoints for the paper ["SepLUT: Separable Image-adaptive Lookup Tables for Real-time Image Enhancement"](https://arxiv.org/abs/2207.08351) (accepted by ECCV 2022).
 
 <p align="center">
   <img src="resources/framework.jpg" />
